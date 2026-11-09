@@ -359,7 +359,7 @@ Invert the OLED screen colors
 
 ### Setting: Boot logo duration
 
-Sets the duration for the boot logo (s=seconds).
+Sets the duration for the boot logo in 0.1 second steps (s=seconds). Static logos stay on screen for 1 second per step instead.
 
 On device help text:
 
