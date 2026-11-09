@@ -529,7 +529,7 @@
       "id": "LOGOTime",
       "maxLen": 7,
       "maxLen2": 15,
-      "description": "Sets the duration for the boot logo (s=seconds)."
+      "description": "Sets the duration for the boot logo in 0.1 second steps (s=seconds). Static logos stay on screen for 1 second per step instead."
     },
     {
       "id": "AdvancedIdle",

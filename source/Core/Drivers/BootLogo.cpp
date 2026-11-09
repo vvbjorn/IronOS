@@ -52,10 +52,14 @@ void BootLogo::showNewFormat(const uint8_t *ptrLogoArea) {
 
   // Now draw in the frames
   int position = 1;
+  int frames   = 0;
   while (getButtonState() == BUTTON_NONE) {
     int len = (showNewFrame(ptrLogoArea + position));
     OLED::refresh();
     position += len;
+    if (len) {
+      frames++;
+    }
 
     if (interFrameDelay) {
       osDelay(interFrameDelay * 4);
@@ -77,7 +81,12 @@ void BootLogo::showNewFormat(const uint8_t *ptrLogoArea) {
     }
 
     // Static logo case ends up right here, so delay until a button is pressed or its been the amount of seconds set by the user
-    delay();
+    // A finished animation has already been on screen, so its last frame is only held in 100ms steps unless the one time setting asks to stall
+    if (frames <= 1 || getSettingValue(SettingsOptions::LOGOTime) == logoMode_t::ONETIME) {
+      delay();
+    } else {
+      waitForButtonPressOrTimeout(TICKS_100MS * getSettingValue(SettingsOptions::LOGOTime));
+    }
     return;
   }
 }

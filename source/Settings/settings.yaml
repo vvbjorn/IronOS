@@ -174,9 +174,9 @@ settings:
     max: MAX_BRIGHTNESS
     min: MIN_BRIGHTNESS
     name: OLEDBrightness
-  - default: 1
+  - default: 6
     increment: 1
-    max: 6
+    max: 12
     min: 0
     name: LOGOTime
   - default: 0

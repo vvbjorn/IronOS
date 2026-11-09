@@ -57,7 +57,7 @@ enum SettingsOptions {
   PDNegTimeout                   = 32, // PD timeout in 100ms steps
   OLEDInversion                  = 33, // Invert the colours on the display
   OLEDBrightness                 = 34, // Brightness for the OLED display
-  LOGOTime                       = 35, // Duration the logo will be displayed for
+  LOGOTime                       = 35, // Duration the logo will be displayed for, seconds for static logos and 100ms steps for the last frame of animated logos
   CalibrateCJC                   = 36, // Toggle calibrate CJC at next boot
   BluetoothLE                    = 37, // Toggle BLE if present
   USBPDMode                      = 38, // Toggle PPS & EPR
@@ -128,9 +128,9 @@ typedef enum {
 } orientationMode_t;
 
 typedef enum {
-  SKIP     = 0, // Skip boot logo
-  ONETIME  = 5, // Show boot logo once (if animated) and stall until a button toggled
-  INFINITY = 6, // Show boot logo on repeat (if animated) until a button toggled
+  SKIP     = 0,  // Skip boot logo
+  ONETIME  = 11, // Show boot logo once (if animated) and stall until a button toggled
+  INFINITY = 12, // Show boot logo on repeat (if animated) until a button toggled
 } logoMode_t;
 
 typedef enum {

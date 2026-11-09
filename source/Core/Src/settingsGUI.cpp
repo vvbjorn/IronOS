@@ -442,7 +442,7 @@ const menuitem UIMenu[] = {
   /* Invert screen colour */
   {SETTINGS_DESC(SettingsItemIndex::ColourInversion), nullptr, displayInvertColor, nullptr, SettingsOptions::OLEDInversion, SettingsItemIndex::ColourInversion, 7},
   /* Set logo duration */
-  {SETTINGS_DESC(SettingsItemIndex::LOGOTime), nullptr, displayLogoTime, nullptr, SettingsOptions::LOGOTime, SettingsItemIndex::LOGOTime, 6},
+  {SETTINGS_DESC(SettingsItemIndex::LOGOTime), nullptr, displayLogoTime, nullptr, SettingsOptions::LOGOTime, SettingsItemIndex::LOGOTime, 5},
   /* Advanced idle screen */
   {SETTINGS_DESC(SettingsItemIndex::AdvancedIdle), nullptr, displayAdvancedIDLEScreens, nullptr, SettingsOptions::DetailedIDLE, SettingsItemIndex::AdvancedIdle, 7},
   /* Advanced soldering screen */
@@ -992,7 +992,8 @@ static void displayInvertColor(void) {
 }
 
 static void displayLogoTime(void) {
-  switch (getSettingValue(SettingsOptions::LOGOTime)) {
+  auto logoTime = getSettingValue(SettingsOptions::LOGOTime);
+  switch (logoTime) {
   case logoMode_t::SKIP:
     OLED::drawUnavailableIcon();
     break;
@@ -1003,7 +1004,9 @@ static void displayLogoTime(void) {
     OLED::drawArea(OLED_WIDTH - OLED_HEIGHT - 2, 0, OLED_HEIGHT, OLED_HEIGHT, RepeatInf);
     break;
   default:
-    OLED::printNumber(getSettingValue(SettingsOptions::LOGOTime), 1, VALUE_FONT);
+    // Steps of 0.1s, from .1s up to 1s
+    OLED::print(logoTime < 10 ? VALUE_SYMBOL(Dot) : VALUE_SYMBOL(Space), VALUE_FONT);
+    OLED::printNumber(logoTime < 10 ? logoTime : 1, 1, VALUE_FONT);
     OLED::print(VALUE_SYMBOL(Seconds), VALUE_FONT);
     break;
   }
