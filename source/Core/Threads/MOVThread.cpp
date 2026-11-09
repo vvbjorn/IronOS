@@ -26,8 +26,10 @@
 #include "task.h"
 
 #define MOVFilter 8
+#define SHAKE_TRIP_SCORE 5 // Each hard sample scores 2 and each calmer sample takes 1 away, so a shake needs about 3 hard samples close together
 uint8_t    accelInit        = 0;
 TickType_t lastMovementTime = 0;
+TickType_t lastShakeTime    = 0;
 // Order matters for probe order, some Acceleromters do NOT like bad reads; and we have a bunch of overlap of addresses
 void detectAccelerometerVersion() {
 #ifdef ACCEL_MMA
@@ -162,12 +164,14 @@ void startMOVTask(void const *argument __unused) {
   uint8_t     currentPointer   = 0;
   int16_t     tx = 0, ty = 0, tz = 0;
   int32_t     avgx, avgy, avgz;
-  Orientation rotation = ORIENTATION_FLAT;
+  Orientation rotation   = ORIENTATION_FLAT;
+  uint8_t     shakeScore = 0;
 #ifdef ACCEL_EXITS_ON_MOVEMENT
   uint16_t tripCounter = 0;
 #endif
   for (;;) {
-    int32_t threshold = 1500 + (9 * 200);
+    int32_t shakeThreshold = 1500 + (9 * 200); // Fixed at the least sensitive level, so a shake does not depend on the Sensitivity setting
+    int32_t threshold      = shakeThreshold;
     threshold -= getSettingValue(SettingsOptions::Sensitivity) * 200; // 200 is the step size
 #ifdef ACCEL_LIS
     if (DetectedAccelerometerVersion == AccelType::LIS_CLONE) {
@@ -177,6 +181,7 @@ void startMOVTask(void const *argument __unused) {
       // Confirmed on hardware: dividing by 6 gives comparable real-world sensitivity to the
       // formula's intended feel on genuine silicon, across the full Sensitivity range.
       threshold /= 6;
+      shakeThreshold /= 6;
     }
 #endif
     readAccelerometer(tx, ty, tz, rotation);
@@ -230,6 +235,17 @@ void startMOVTask(void const *argument __unused) {
     }
 
 #endif
+
+    // A single knock, such as pressing a button, is not a shake
+    if (error > shakeThreshold) {
+      shakeScore += 2;
+      if (shakeScore >= SHAKE_TRIP_SCORE) {
+        lastShakeTime = xTaskGetTickCount();
+        shakeScore    = 0;
+      }
+    } else if (shakeScore > 0) {
+      shakeScore--;
+    }
 
     vTaskDelay(TICKS_100MS); // Slow down update rate
   }

@@ -1,6 +1,8 @@
 #include "OperatingModes.h"
 #include "ui_drawing.hpp"
 
+extern TickType_t lastShakeTime;
+
 OperatingMode gui_solderingTempAdjust(const ButtonState buttonIn, guiContext *cxt) {
 
   currentTempTargetDegC              = 0; // Turn off heater while adjusting temp
@@ -82,6 +84,15 @@ OperatingMode gui_solderingTempAdjust(const ButtonState buttonIn, guiContext *cx
     setSettingValue(SettingsOptions::SolderingTemp, (uint16_t)newTemp);
   }
   ui_draw_temperature_change();
+
+#ifndef ACCEL_EXITS_ON_MOVEMENT
+  // Shaking the iron accepts the new temperature, but only a shake after the last button press counts
+  if (buttonIn == BUTTON_NONE && lastShakeTime > lastButtonTime) {
+    saveSettings();
+    cxt->transitionMode = TransitionAnimation::Right;
+    return cxt->previousMode;
+  }
+#endif
 
   if (xTaskGetTickCount() - lastButtonTime > (TICKS_SECOND * 3)) {
     saveSettings();
